@@ -43,17 +43,7 @@ build-backend = "flit_core.buildapi"
 line-length = 88
 
 [tool.ruff.lint]
-select = ["F", [project.scripts]
-my-cli = "my_project.cli:main"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-
-[tool.ruff]
-line-length = 100"E", "W", "N", "B", "RUF", "TC"]
+select = ["F", "E", "W", "N", "B", "RUF", "TC"]
 ignore = [
     "E501",   # Line too long
     "E731",   # Do not assign a `lambda` expression, use a `def`
