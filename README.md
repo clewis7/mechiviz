@@ -13,3 +13,16 @@ cd branchpoint
 ```bash
 uv sync --extra dev 
 ```
+
+## For developers
+
+```bash
+uv sync --extra dev    # to get dev dependencies
+uv lock --upgrade      # to update deps when necessary
+
+# Common tasks:
+uv run ruff format     # auto-format
+uv run ruff check      # lint
+uv run pytest tests    # run unit tests
+
+```
