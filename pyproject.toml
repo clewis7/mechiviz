@@ -1,0 +1,52 @@
+# ==== Project info
+
+[project]
+name = "branchpoint"
+version = "0.0.1"
+description = "Interactive mechanistic interpretability"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Caitlin Lewis", email = "caitlin.lewis@duke.edu" },
+]
+keywords = [
+    "mechanistic interpretability",
+    "machine learning",
+    "LLM",
+    "interactive visualization"
+]
+dependencies = [
+    "numpy",
+    "tinygrad",
+    "fastplotlib[notebook, imgui]"
+]
+
+[project.optional-dependencies]
+lint = ["ruff"]
+tests = ["pytest"]
+dev = ["branchpoint[lint, tests]"]
+
+[project.urls]
+Homepage = "https://github.com/clewis7/branchpoint"
+
+# ===== Building
+
+# Flit is great solution for simple pure-Python projects.
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+# ===== Tooling
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "N", "B", "RUF", "TC"]
+ignore = [
+    "E501",   # Line too long
+    "E731",   # Do not assign a `lambda` expression, use a `def`
+    "B019",   # Use of `functools.lru_cache` or `functools.cache` on methods can lead to memory leaks
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`"
+]
