@@ -170,10 +170,13 @@ class SharedWebGpuAllocator(Allocator):
         dest[:] = data[: dest.nbytes]  # trim the alignment padding
 
     def _free(self, opaque, options: BufferSpec):
+        # The renderer may have already torn the device down at interpreter exit.
+        # Destroying a buffer whose device is gone corrupts memory in wgpu-native
+        if getattr(self.dev, "_torn_down", False):
+            return
         try:
             opaque.destroy()
         except Exception:
-            # Buffer may already be gone if the device was torn down first.
             pass
 
 

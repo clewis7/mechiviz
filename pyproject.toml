@@ -19,7 +19,8 @@ keywords = [
 dependencies = [
     "numpy",
     "tinygrad",
-    "fastplotlib[notebook, imgui]"
+    "fastplotlib[notebook, imgui]",
+    "glfw"
 ]
 
 [project.optional-dependencies]
@@ -52,4 +53,4 @@ ignore = [
 ]
 
 [tool.ruff.lint.pydocstyle]
-convention = "numpy" 
+convention = "numpy"
