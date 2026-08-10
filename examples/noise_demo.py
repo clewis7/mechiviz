@@ -7,19 +7,11 @@ from branchpoint import gpu
 SIZE = 64  # 64 f32 per row = 256 bytes -> already row-aligned, no padding
 SCALE = 7.0  # 64 * 7 = 448 px on screen
 
-canvas = RenderCanvas(size=(560, 620), title="shared device: random noise")
+canvas = RenderCanvas(size=(560, 620), title="simple demo")
 renderer = gfx.renderers.WgpuRenderer(canvas)
-
-
-# prevent buffer overflow from happening
-@canvas.add_event_handler("close")
-def _on_close(event):
-    dev._torn_down = True
-
 
 dev = gpu.install()
 print(f"installed shared device")
-assert dev.wdev is gfx.renderers.wgpu.get_shared().device
 
 
 class NoiseModel:
@@ -28,7 +20,6 @@ class NoiseModel:
     def __init__(self, size: int = SIZE):
         self.size = size
         self.state = Tensor.rand(size, size).realize()
-        assert self.state.device == gpu.installed().device is not None
         self.step = 0
 
     def train_step(self):
@@ -45,6 +36,7 @@ scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
 # create a texture
 tex = gpu.TensorTexture(SIZE, SIZE)
 
+# render texture as image in the scene
 scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))
 
 label = gfx.Text(
@@ -77,5 +69,4 @@ def animate():
 canvas.request_draw(animate)
 
 if __name__ == "__main__":
-    print(__doc__)
     loop.run()
