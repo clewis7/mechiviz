@@ -20,7 +20,8 @@ dependencies = [
     "numpy",
     "tinygrad",
     "fastplotlib[notebook, imgui]",
-    "glfw"
+    "glfw",
+    "jupyterlab"
 ]
 
 [project.optional-dependencies]
