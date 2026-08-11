@@ -2,6 +2,12 @@
 Interactive mechanistic interpretability 
 
 
+
+https://github.com/user-attachments/assets/33c269db-ff70-4160-8bd2-7a998b58f6df
+
+
+
+
 ## Installation 
 
 1. Clone the repo 
