@@ -171,6 +171,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastplotlib", extra = ["imgui", "notebook"] },
     { name = "glfw" },
+    { name = "jupyterlab" },
     { name = "numpy" },
     { name = "tinygrad" },
 ]
@@ -192,6 +193,7 @@ requires-dist = [
     { name = "branchpoint", extras = ["lint", "tests"], marker = "extra == 'dev'" },
     { name = "fastplotlib", extras = ["notebook", "imgui"] },
     { name = "glfw" },
+    { name = "jupyterlab" },
     { name = "numpy" },
     { name = "pytest", marker = "extra == 'tests'" },
     { name = "ruff", marker = "extra == 'lint'" },
