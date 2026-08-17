@@ -4,8 +4,9 @@ import wgpu
 import pygfx as gfx
 from pygfx.renderers.wgpu.engine.update import ensure_wgpu_object
 from tinygrad import Tensor
+import numpy as np
 
-from .transfer import padded_row_texels, copy_tensor_to_texture
+from .transfer import padded_row_texels, copy_tensor_to_texture, copy_tensor_to_buffer
 from .device import DEFAULT_NAME, SharedWebGpuDevice, installed
 
 
@@ -181,6 +182,92 @@ class TensorTexture:
             )
         self._staging[:, : self.width] = t
         return self._staging.contiguous().realize()
+
+
+class TensorBuffer:
+    """A pygfx vertex buffer fed from tinygrad Tensors on the same device.
+
+    The sibling of TensorTexture, for line data rather than image data."""
+
+    def __init__(
+        self,
+        n_items: int,
+        components: int = 3,
+        dev: SharedWebGpuDevice | None = None,
+        device_name: str = DEFAULT_NAME,
+    ):
+        if dev is None:
+            dev = installed(device_name)
+            if dev is None:
+                raise RuntimeError(
+                    "no shared device installed. Call "
+                    "branchpoint.gpu.install_from_pygfx() first."
+                )
+        self.dev = dev
+        self.n_items = int(n_items)
+        self.components = int(components)
+        self._gfx_buffer: Any | None = None
+        self._wgpu_buffer: Any | None = None
+
+    @property
+    def buffer(self):
+        """The `gfx.Buffer` to hand to a pygfx Geometry."""
+        if self._gfx_buffer is None:
+            self._gfx_buffer = self._make_buffer()
+        return self._gfx_buffer
+
+    def _make_buffer(self):
+        # NaN positions are skipped by pygfx's line renderer, so an unfilled
+        # buffer draws nothing rather than a spray of points at the origin.
+        data = np.full((self.n_items, self.components), np.nan, np.float32)
+        if self.components >= 3:
+            data[:, 2] = 0.0
+        # COPY_DST is what makes this buffer a legal copy destination. pygfx
+        # does not set it on its own and it cannot be added later.
+        return gfx.Buffer(data, usage=wgpu.BufferUsage.COPY_DST)
+
+    def _resolve(self):
+        if self._wgpu_buffer is None:
+            raw = ensure_wgpu_object(self.buffer)
+            if raw is None:
+                raise RuntimeError(
+                    "pygfx has not created the GPU buffer yet. Render one frame "
+                    "before calling update()."
+                )
+            self._wgpu_buffer = raw
+        return self._wgpu_buffer
+
+    def prepare(self) -> None:
+        self._resolve()
+
+    def as_line(self, color="#ffffff", thickness: float = 2.0, **material_kwargs):
+        """Build a `gfx.Line` drawing this buffer's positions."""
+        return gfx.Line(
+            gfx.Geometry(positions=self.buffer),
+            gfx.LineMaterial(color=color, thickness=thickness, **material_kwargs),
+        )
+
+    def as_points(self, color="#ffffff", size: float = 4.0, **material_kwargs):
+        """Build a `gfx.Points` drawing this buffer's positions."""
+        import pygfx as gfx
+
+        return gfx.Points(
+            gfx.Geometry(positions=self.buffer),
+            gfx.PointsMaterial(color=color, size=size, **material_kwargs),
+        )
+
+    def update(self, t, synchronize: bool = True) -> None:
+        """Copy tensor `t`, shape (n_items, components) float32, into the buffer."""
+        shape = tuple(t.shape)
+        want = (self.n_items, self.components)
+        if shape != want:
+            raise ValueError(f"this buffer holds {want}, got a tensor of shape {shape}")
+        if t.dtype.name != "float":
+            t = t.float()
+
+        copy_tensor_to_buffer(
+            self.dev, t.contiguous().realize(), self._resolve(), synchronize=synchronize
+        )
 
 
 def pack_rgba8(t, lo=None, hi=None):

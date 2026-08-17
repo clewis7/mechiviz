@@ -137,3 +137,52 @@ def copy_tensor_to_texture(
         (width, height, 1),
     )
     dev.wdev.queue.submit([enc.finish()])
+
+
+COPY_BUFFER_ALIGNMENT = 4
+
+
+def copy_tensor_to_buffer(
+    dev,
+    tensor,
+    wgpu_buffer,
+    nbytes: int | None = None,
+    src_offset: int = 0,
+    dst_offset: int = 0,
+    synchronize: bool = True,
+) -> None:
+    """Copy a realized Tensor's buffer into another wgpu buffer, on-GPU.
+
+    nbytes defaults to the whole tensor. All three of nbytes, src_offset and
+    dst_offset must be multiples of 4.
+    """
+    tensor.realize()
+    if synchronize:
+        dev.synchronize()
+
+    src = buffer_handle(tensor)
+    size = src.size if nbytes is None else int(nbytes)
+
+    for name, val in (
+        ("nbytes", size),
+        ("src_offset", src_offset),
+        ("dst_offset", dst_offset),
+    ):
+        if val % COPY_BUFFER_ALIGNMENT:
+            raise ValueError(
+                f"{name}={val} must be a multiple of {COPY_BUFFER_ALIGNMENT}"
+            )
+    if src_offset + size > src.size:
+        raise ValueError(
+            f"source buffer is {src.size} bytes; cannot read {size} from "
+            f"offset {src_offset}"
+        )
+    if dst_offset + size > wgpu_buffer.size:
+        raise ValueError(
+            f"destination buffer is {wgpu_buffer.size} bytes; cannot write "
+            f"{size} at offset {dst_offset}"
+        )
+
+    enc = dev.wdev.create_command_encoder()
+    enc.copy_buffer_to_buffer(src, src_offset, wgpu_buffer, dst_offset, size)
+    dev.wdev.queue.submit([enc.finish()])
