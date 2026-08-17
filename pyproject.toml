@@ -16,18 +16,25 @@ keywords = [
     "LLM",
     "interactive visualization"
 ]
+
 dependencies = [
     "numpy",
+    "wgpu>=0.29.0,<0.30",
     "tinygrad",
-    "fastplotlib[notebook, imgui]",
+    "fastplotlib[notebook,imgui]",
     "glfw",
-    "jupyterlab"
 ]
 
 [project.optional-dependencies]
+torch = [
+    "torch",
+    "cuda-python",
+    "cupy-cuda12x",
+]
 lint = ["ruff"]
 tests = ["pytest"]
-dev = ["branchpoint[lint, tests]"]
+notebook = ["jupyterlab"]
+dev = ["branchpoint[lint, tests, torch, notebook]"]
 
 [project.urls]
 Homepage = "https://github.com/clewis7/branchpoint"
