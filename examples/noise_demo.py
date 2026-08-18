@@ -34,7 +34,7 @@ scene = gfx.Scene()
 scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
 
 # create a texture
-tex = gpu.TensorTexture(SIZE, SIZE)
+tex = gpu.TinygradTensorTexture(SIZE, SIZE)
 
 # render texture as image in the scene
 scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))

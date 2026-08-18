@@ -1,11 +1,11 @@
 """Torch version of the noise demo: torch -> shared wgpu buffer -> texture -> pygfx."""
 
-import branchpoint as bp # noqa: F401
+import branchpoint as bp  # noqa: F401
 import pygfx as gfx
 import torch
 from rendercanvas.auto import RenderCanvas, loop
 
-SIZE = 64   # 64 f32 per row = 256 bytes -> already row-aligned, no padding
+SIZE = 64  # 64 f32 per row = 256 bytes -> already row-aligned, no padding
 SCALE = 7.0
 
 canvas = RenderCanvas(size=(560, 620), title="torch shared-memory demo")
@@ -24,7 +24,7 @@ class NoiseModel:
         self.step = 0
 
     def train_step(self):
-        self.state.uniform_()   # in-place refresh, stays on GPU
+        self.state.uniform_()  # in-place refresh, stays on GPU
         self.step += 1
 
 
@@ -34,20 +34,10 @@ model = NoiseModel()
 scene = gfx.Scene()
 scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
 
-tex = bp.gpu.TorchTensorTexture(device, SIZE, SIZE)
+tex = bp.gpu.TorchTensorTexture(device=device, width=SIZE, height=SIZE)
 
-# --- INTEGRATION POINT ---------------------------------------------------
-# Rendering the texture: your existing gpu.TensorTexture.as_image() already
-# solves "pygfx image backed by an externally-written wgpu texture" for the
-# tinygrad path.  Reuse that bridge here, e.g. either:
-#   a) construct your gpu.TensorTexture and pass its underlying wgpu texture:
-#        bp_tex = gpu.TensorTexture(SIZE, SIZE)
-#        tex = TorchTensorTexture(device, SIZE, SIZE,
-#                                 wgpu_texture=bp_tex.<underlying_wgpu_texture>)
-#        scene.add(bp_tex.as_image(position=(56, 90, 0), scale=SCALE))
-#   b) or point your as_image() machinery at `tex.texture`.
-# The line below is the placeholder for whichever bridge you pick:
-scene.add(tex_as_image := NotImplemented)  # <-- replace with (a) or (b)
+
+scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))
 # -------------------------------------------------------------------------
 
 label = gfx.Text(
@@ -69,7 +59,7 @@ def animate():
     if model.step > 300:
         return
     model.train_step()
-    tex.update(model.state)     # one D2D copy + one buffer->texture blit
+    tex.update(model.state)  # one D2D copy + one buffer->texture blit
     if model.step % 60 == 0:
         print(f"step {model.step}")
     renderer.render(scene, camera)

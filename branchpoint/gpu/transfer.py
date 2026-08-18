@@ -3,7 +3,7 @@
 from tinygrad import Tensor
 
 # WebGPU spec constant: the required alignment of `bytes_per_row` in
-# copy_buffer_to_texture.
+# copy_buffer_to_texture
 BYTES_PER_ROW_ALIGNMENT = 256
 
 # Texture formats; format name => bytes per texel

@@ -124,7 +124,7 @@ for h in range(N_HEADS):
     # brightness stays comparable across frames. Per-frame min/max would make
     # a faint stripe and a sharp one look identical, hiding the thing we came
     # to watch.
-    t = gpu.TensorTexture(TILE, TILE)
+    t = gpu.TinygradTensorTexture(TILE, TILE)
     scene.add(t.as_image(clim=(0.0, 1.0), position=(x, HEAD_Y, 0), scale=HSCALE))
     head_tex.append(t)
     make_label(
@@ -149,7 +149,7 @@ make_label(
 # chance level, so a fully-untrained strip reads as full brightness.
 STRIP_H = 26
 STRIP_Y = HEAD_Y - 74
-strip_tex = gpu.TensorTexture(1, HALF)
+strip_tex = gpu.TinygradTensorTexture(1, HALF)
 scene.add(
     strip_tex.as_image(
         clim=(0.0, 4.16),
