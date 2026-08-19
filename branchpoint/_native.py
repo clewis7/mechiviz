@@ -8,11 +8,6 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-
-#: wgpu-native version the vendored .so was built from.  Used both for the
-#: vendored filename and for the runtime ABI check against wgpu-py.
-WGPU_NATIVE_VERSION = (27, 0, 2, 0)
-
 #: Vendored library location inside the package
 VENDORED_SO = (
     Path(__file__).parent / "_native_lib" / "libwgpu_native-27.0.2.0-exportable.so"
@@ -47,27 +42,9 @@ else:
 
 
 @functools.cache
-def _load() -> tuple[ctypes.CDLL, bool]:
-    """dlopen the wgpu-native that wgpu-py is using; declare our signatures.
-
-    Returns (cdll, has_exportable).  Cached: runs once per process.
-    Deferred until first use so wgpu-py has settled first.
-    """
+def _load() -> ctypes.CDLL:
+    """dlopen the wgpu-native that wgpu-py is using; declare signatures."""
     import wgpu.backends.wgpu_native as wn  # deliberate late import
-
-    try:
-        reported = tuple(wn.lib_version_info)
-        # (0,0,0) is what local cargo builds report; CI builds report the
-        # real version.
-        if reported not in (WGPU_NATIVE_VERSION, (0, 0, 0)):
-            logger.warning(
-                "wgpu-native reports version %s but branchpoint's patched "
-                "symbols were built for %s — ABI mismatch possible",
-                reported,
-                WGPU_NATIVE_VERSION,
-            )
-    except AttributeError:
-        pass
 
     logger.debug("loading wgpu-native from %s", wn.lib_path)
     cdll = ctypes.CDLL(wn.lib_path)
@@ -80,7 +57,7 @@ def _load() -> tuple[ctypes.CDLL, bool]:
             "symbols; shared-memory backend disabled (host-copy fallback)",
             wn.lib_path,
         )
-        return cdll, False
+        sys.exit()
 
     # WGPUBuffer wgpuDeviceCreateExportableBuffer(
     #     WGPUDevice, uint64_t size, uint64_t usage,
@@ -99,23 +76,11 @@ def _load() -> tuple[ctypes.CDLL, bool]:
     free_fn.restype = None
     free_fn.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
 
-    return cdll, True
-
-
-def has_exportable() -> bool:
-    """True if the loaded wgpu-native has the Branchpoint patched symbols.
-
-    First call triggers loading wgpu (and therefore the .so).
-    """
-    return _load()[1]
+    return cdll
 
 
 def _cdll() -> ctypes.CDLL:
-    return _load()[0]
-
-
-class ExportableBufferError(RuntimeError):
-    """Raised when the patched entry point is missing or fails."""
+    return _load()
 
 
 @dataclass
@@ -172,10 +137,6 @@ def create_exportable_buffer(
     or creation fails.  Check :func:`has_exportable` first to fall back
     cleanly.
     """
-    if not has_exportable():
-        raise ExportableBufferError(
-            "wgpu-native in use lacks the Branchpoint exportable-buffer patch"
-        )
     if nbytes <= 0:
         raise ValueError("nbytes must be positive")
 
@@ -192,11 +153,7 @@ def create_exportable_buffer(
         ctypes.byref(alloc_size),
         ctypes.byref(vk_memory),
     )
-    if not raw:
-        raise ExportableBufferError(
-            f"wgpuDeviceCreateExportableBuffer failed (nbytes={nbytes}, "
-            f"usage={usage:#x}) — see wgpu-native log output"
-        )
+
     return ExportableBufferHandle(
         raw_buffer=raw,
         fd=fd.value,

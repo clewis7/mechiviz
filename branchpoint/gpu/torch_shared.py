@@ -1,20 +1,16 @@
 """
 Torch backend: a wgpu buffer whose memory is shared with CUDA, written by
 torch with a single device-to-device copy, plus a texture wrapper that blits
-the buffer into a wgpu texture for pygfx to sample. Eliminates host round trip.
+the buffer into a wgpu texture for pygfx to sample, eliminating host round trip.
 
 Flow: torch tensor --copy_--> SharedTensorBuffer --copy_buffer_to_texture--> wgpu texture --> pygfx
 """
-
-import logging
 
 import torch
 import cuda.bindings.driver as cu
 import cupy as cp
 
 from branchpoint import _native
-
-logger = logging.getLogger(__name__)
 
 
 class SharedTensorBuffer:
