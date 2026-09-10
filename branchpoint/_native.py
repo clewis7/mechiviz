@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 #: Vendored library location inside the package
 VENDORED_SO = (
-    Path(__file__).parent / "_native_lib" / "libwgpu_native-27.0.2.0-exportable.so"
+    Path(__file__).parent / "_native_lib" / "libwgpu_native-29.0.1.1-exportable.so"
 )
 
 

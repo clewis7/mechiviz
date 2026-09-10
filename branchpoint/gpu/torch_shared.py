@@ -13,6 +13,29 @@ import cupy as cp
 from branchpoint import _native
 
 
+def _ensure_cuda_ctx():
+    (err,) = cu.cuInit(0)
+    if err != cu.CUresult.CUDA_SUCCESS:
+        raise RuntimeError(f"cuInit: {cu.cuGetErrorName(err)[1]}")
+
+    torch.cuda.init()
+    torch.zeros(1, device="cuda")  # force torch's primary context
+
+    err, cur = cu.cuCtxGetCurrent()
+    if err != cu.CUresult.CUDA_SUCCESS:
+        raise RuntimeError(f"cuCtxGetCurrent: {cu.cuGetErrorName(err)[1]}")
+    if int(cur) == 0:
+        err, dev = cu.cuDeviceGet(0)
+        if err != cu.CUresult.CUDA_SUCCESS:
+            raise RuntimeError(f"cuDeviceGet: {cu.cuGetErrorName(err)[1]}")
+        err, ctx = cu.cuDevicePrimaryCtxRetain(dev)
+        if err != cu.CUresult.CUDA_SUCCESS:
+            raise RuntimeError(f"cuDevicePrimaryCtxRetain: {cu.cuGetErrorName(err)[1]}")
+        (err,) = cu.cuCtxSetCurrent(ctx)
+        if err != cu.CUresult.CUDA_SUCCESS:
+            raise RuntimeError(f"cuCtxSetCurrent: {cu.cuGetErrorName(err)[1]}")
+
+
 class SharedTensorBuffer:
     """A wgpu buffer aliased into CUDA, updatable from torch with one D2D copy.
 
@@ -23,6 +46,8 @@ class SharedTensorBuffer:
     """
 
     def __init__(self, device, shape):
+        _ensure_cuda_ctx()
+
         self.shape = tuple(shape)
         self.nbytes = 4 * int(torch.tensor(self.shape).prod())
         self._handle = _native.create_exportable_buffer(device, self.nbytes)

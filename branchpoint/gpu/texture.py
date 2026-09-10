@@ -48,6 +48,34 @@ class _TensorTextureBase:
             )
         return self._gfx_texture
 
+    @texture.setter
+    def texture(self, tex):
+        """Adopt an existing gfx.Texture (e.g. from a fastplotlib graphic)."""
+        if tex is None:
+            self._gfx_texture = None
+            self._wgpu_texture = None
+            return
+
+        if not isinstance(tex, gfx.Texture):
+            raise TypeError(f"expected gfx.Texture, got {type(tex).__name__}")
+
+        w, h, _ = tex.size  # pygfx order: (width, height, depth)
+        if (h, w) != (self.height, self.width):
+            raise ValueError(
+                f"texture is {h}x{w} (h x w), this wrapper is "
+                f"{self.height}x{self.width}"
+            )
+
+        if not (tex.usage & wgpu.TextureUsage.COPY_DST):
+            raise ValueError(
+                "texture lacks COPY_DST usage; cannot be a copy target. "
+                "Recreate it with usage=... | wgpu.TextureUsage.COPY_DST"
+            )
+
+        self._gfx_texture = tex
+        self._wgpu_texture = None  # force re-resolve; may not exist yet
+        self.usage = tex.usage
+
     def _resolve(self):
         """Get the underlying wgpu.GPUTexture, materializing it if needed."""
         if self._wgpu_texture is None:
@@ -59,6 +87,8 @@ class _TensorTextureBase:
                     "update() - or call prepare() from inside your draw "
                     "callback rather than during setup."
                 )
+            if raw.format != self.fmt:
+                raise ValueError(f"format mismatch: {raw.format!r} vs {self.fmt!r}")
             self._wgpu_texture = raw
         return self._wgpu_texture
 
