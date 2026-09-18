@@ -1,17 +1,18 @@
-import pygfx as gfx
-from rendercanvas.auto import RenderCanvas, loop
-from tinygrad import Tensor
+"""Torch version of the noise demo: torch -> shared wgpu buffer -> texture -> pygfx."""
 
-from branchpoint import gpu
+import branchpoint as bp  # noqa: F401
+import pygfx as gfx
+import torch
+from rendercanvas.auto import RenderCanvas, loop
 
 SIZE = 64  # 64 f32 per row = 256 bytes -> already row-aligned, no padding
-SCALE = 7.0  # 64 * 7 = 448 px on screen
+SCALE = 7.0
 
-canvas = RenderCanvas(size=(560, 620), title="simple demo")
+canvas = RenderCanvas(size=(560, 620), title="torch shared-memory demo")
 renderer = gfx.renderers.WgpuRenderer(canvas)
 
-dev = gpu.install()
-print(f"installed shared device")
+# pygfx's shared wgpu device -- the one all rendering uses
+device = gfx.renderers.wgpu.get_shared().device
 
 
 class NoiseModel:
@@ -19,28 +20,28 @@ class NoiseModel:
 
     def __init__(self, size: int = SIZE):
         self.size = size
-        self.state = Tensor.rand(size, size).realize()
+        self.state = torch.rand(size, size, device="cuda")
         self.step = 0
 
     def train_step(self):
-        self.state.assign(Tensor.rand(self.size, self.size)).realize()
+        self.state.uniform_()  # in-place refresh, stays on GPU
         self.step += 1
 
 
 model = NoiseModel()
 
-# ---------------------------------------------------------------- 3. scene
+# ---------------------------------------------------------------- scene
 scene = gfx.Scene()
 scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
 
-# create a texture
-tex = gpu.TinygradTensorTexture(shape=model.state.shape)
+tex = bp.gpu.TorchTensorTexture(shape=model.state.shape, device=device)
 
-# render texture as image in the scene
+
 scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))
+# -------------------------------------------------------------------------
 
 label = gfx.Text(
-    text="random noise, tinygrad -> wgpu",
+    text="random noise, torch -> shared wgpu memory",
     font_size=15,
     screen_space=False,
     anchor="bottom-center",
@@ -53,13 +54,12 @@ camera = gfx.OrthographicCamera(560, 620)
 camera.local.position = (280, 310, 0)
 
 
-# ---------------------------------------------------------------- 4. loop
+# ---------------------------------------------------------------- loop
 def animate():
     if model.step > 300:
         return
-
     model.train_step()
-    tex.update(model.state)
+    tex.update(model.state)  # one D2D copy + one buffer->texture blit
     if model.step % 60 == 0:
         print(f"step {model.step}")
     renderer.render(scene, camera)

@@ -1,13 +1,15 @@
 import math
 
+
+from branchpoint import gpu
 import fastplotlib as fpl
 import numpy as np
 import pygfx as gfx
-from fastplotlib.ui import EdgeWindow
+from fastplotlib.ui import ImguiWindow
 from imgui_bundle import imgui
 from tinygrad import Tensor, nn
 
-from branchpoint import gpu
+
 from induction_model import Transformer
 
 TILE = 64  # = seq len; 64 float32 = 256 bytes/row, so no row padding is needed
@@ -124,7 +126,7 @@ for h in range(N_HEADS):
     # brightness stays comparable across frames. Per-frame min/max would make
     # a faint stripe and a sharp one look identical, hiding the thing we came
     # to watch.
-    t = gpu.TensorTexture(TILE, TILE)
+    t = gpu.TinygradTensorTexture(shape=(TILE, TILE))
     scene.add(t.as_image(clim=(0.0, 1.0), position=(x, HEAD_Y, 0), scale=HSCALE))
     head_tex.append(t)
     make_label(
@@ -149,7 +151,7 @@ make_label(
 # chance level, so a fully-untrained strip reads as full brightness.
 STRIP_H = 26
 STRIP_Y = HEAD_Y - 74
-strip_tex = gpu.TensorTexture(1, HALF)
+strip_tex = gpu.TinygradTensorTexture(shape=(1, HALF))
 scene.add(
     strip_tex.as_image(
         clim=(0.0, 4.16),
@@ -249,17 +251,9 @@ camera.local.position = (590, 380, 0)
 
 
 # guis
-class MenuGUI(EdgeWindow):
-    def __init__(self, figure, size, location, title):
-        super().__init__(
-            figure=figure,
-            size=size,
-            location=location,
-            title=title,
-            window_flags=imgui.WindowFlags_.no_title_bar
-            | imgui.WindowFlags_.no_resize
-            | imgui.WindowFlags_.no_scrollbar,
-        )
+class MenuGUI(ImguiWindow):
+    def __init__(self):
+        super().__init__()
         self._step = 0
         self._loss_hist: list[float] = []
         self._stripe_hist: list[list[float]] = [[] for _ in range(N_HEADS)]
@@ -325,15 +319,9 @@ class MenuGUI(EdgeWindow):
             )
 
 
-class EdgeGUI(EdgeWindow):
-    def __init__(self, figure, size, location, title):
-        super().__init__(
-            figure=figure,
-            size=size,
-            location=location,
-            title=title,
-            window_flags=imgui.WindowFlags_.no_title_bar | imgui.WindowFlags_.no_resize,
-        )
+class EdgeGUI(ImguiWindow):
+    def __init__(self):
+        super().__init__()
         self._learning_rate = LR
 
     def _make_title(self, text: str):
@@ -362,8 +350,25 @@ class EdgeGUI(EdgeWindow):
                 imgui.same_line()
 
 
-figure.add_gui(MenuGUI(figure, size=30, location="top", title=" "))
-figure.add_gui(EdgeGUI(figure, size=200, location="right", title="Training Params"))
+window_flags = (
+    imgui.WindowFlags_.no_collapse
+    | imgui.WindowFlags_.no_move
+    | imgui.WindowFlags_.no_resize
+    | imgui.WindowFlags_.no_scrollbar
+    | imgui.WindowFlags_.no_title_bar
+    | imgui.WindowFlags_.no_scroll_with_mouse
+)
+
+figure.add_imgui_window(
+    MenuGUI(), size=40, location="top", title=None, window_flags=window_flags
+)
+figure.add_imgui_window(
+    EdgeGUI(),
+    size=200,
+    location="right",
+    title="Training Params",
+    window_flags=imgui.WindowFlags_.no_title_bar | imgui.WindowFlags_.no_resize,
+)
 
 figure[0, 0].camera.show_object(
     figure[0, 0].scene, view_dir=(0, 0, -1), up=(0, 1, 0), scale=0.7
