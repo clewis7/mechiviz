@@ -1,4 +1,4 @@
-import branchpoint as bp  # noqa: F401
+import mechiviz as bp  # noqa: F401
 import pygfx as gfx
 import torch
 from rendercanvas.auto import RenderCanvas, loop

@@ -1,7 +1,7 @@
 # ==== Project info
 
 [project]
-name = "branchpoint"
+name = "mechiviz"
 version = "0.0.1"
 description = "Interactive mechanistic interpretability"
 readme = "README.md"
@@ -34,10 +34,10 @@ torch = [
 lint = ["ruff"]
 tests = ["pytest"]
 notebook = ["jupyterlab"]
-dev = ["branchpoint[lint, tests, torch, notebook]"]
+dev = ["mechiviz[lint, tests, torch, notebook]"]
 
 [project.urls]
-Homepage = "https://github.com/clewis7/branchpoint"
+Homepage = "https://github.com/clewis7/mechiviz"
 
 # ===== Building
 

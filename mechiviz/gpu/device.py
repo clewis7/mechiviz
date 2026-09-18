@@ -271,7 +271,7 @@ def install(
         raise RuntimeError(
             "this tinygrad version does not expose "
             "Device._Device__get_canonicalized_item.__wrapped__; "
-            "branchpoint.gpu.device.install() needs updating for it"
+            "mechiviz.gpu.device.install() needs updating for it"
         )
 
     getter.cache_clear()

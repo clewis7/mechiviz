@@ -1,4 +1,4 @@
-from branchpoint import _native
+from mechiviz import _native
 
 from .gpu import install, TorchTensorTexture, TinygradTensorTexture
 

@@ -1,5 +1,5 @@
-# branchpoint
-Interactive mechanistic interpretability 
+# MechiViz
+GPU-resident compute and visualization for interactive mechanistic interpretability 
 
 
 
@@ -12,8 +12,8 @@ https://github.com/user-attachments/assets/33c269db-ff70-4160-8bd2-7a998b58f6df
 
 1. Clone the repo 
 ```bash
-git clone https://github.com/clewis7/branchpoint.git
-cd branchpoint
+git clone https://github.com/clewis7/mechiviz.git
+cd mechiviz
 ```
 2. Install deps using [uv](https://docs.astral.sh/uv/)
 ```bash
