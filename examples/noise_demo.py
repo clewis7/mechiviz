@@ -2,7 +2,7 @@ import pygfx as gfx
 from rendercanvas.auto import RenderCanvas, loop
 from tinygrad import Tensor
 
-from branchpoint import gpu
+from mechiviz import gpu
 
 SIZE = 64  # 64 f32 per row = 256 bytes -> already row-aligned, no padding
 SCALE = 7.0  # 64 * 7 = 448 px on screen

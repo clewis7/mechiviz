@@ -203,7 +203,7 @@ class TinygradTensorTexture(_TensorTextureBase):
             dev = installed(device_name)
             if dev is None:
                 raise RuntimeError(
-                    "no shared device installed. Call branchpoint.gpu.install() "
+                    "no shared device installed. Call mechiviz.gpu.install() "
                     "(after creating your renderer, before creating tensors) first."
                 )
         self.dev = dev

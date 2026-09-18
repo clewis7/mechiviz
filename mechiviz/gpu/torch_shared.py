@@ -10,7 +10,7 @@ import torch
 import cuda.bindings.driver as cu
 import cupy as cp
 
-from branchpoint import _native
+from mechiviz import _native
 
 
 def _ensure_cuda_ctx():

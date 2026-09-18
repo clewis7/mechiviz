@@ -1,4 +1,4 @@
-"""Tests for branchpoint.gpu.device."""
+"""Tests for mechiviz.gpu.device."""
 
 import pytest
 
@@ -9,8 +9,8 @@ from tinygrad.helpers import DEV
 from tinygrad import Tensor
 from tinygrad.dtype import dtypes
 
-from branchpoint.gpu.transfer import buffer_handle
-from branchpoint.gpu import device as D
+from mechiviz.gpu.transfer import buffer_handle
+from mechiviz.gpu import device as D
 from .utils import MockGPUDevice, MockGPUBuffer
 
 NAME = "TESTGPU"

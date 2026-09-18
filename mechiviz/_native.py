@@ -26,8 +26,8 @@ DEFAULT_USAGE = USAGE_STORAGE | USAGE_VERTEX | USAGE_COPY_SRC | USAGE_COPY_DST
 
 if "wgpu" in sys.modules:
     logger.warning(
-        "wgpu was imported before branchpoint — the patched wgpu-native "
-        "cannot be loaded now. Import branchpoint before pygfx/fastplotlib/"
+        "wgpu was imported before mechiviz — the patched wgpu-native "
+        "cannot be loaded now. Import mechiviz before pygfx/fastplotlib/"
         "wgpu. Shared-memory backend will be unavailable this session."
     )
 elif not VENDORED_SO.exists():
@@ -166,7 +166,7 @@ def create_exportable_buffer(
 
 
 def wrap_as_gpubuffer(
-    handle: ExportableBufferHandle, device, label: str = "branchpoint-shared"
+    handle: ExportableBufferHandle, device, label: str = "mechiviz-shared"
 ):
     """Wrap the raw WGPUBuffer as a first-class wgpu-py ``GPUBuffer``.
 

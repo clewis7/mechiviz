@@ -1,7 +1,7 @@
 import math
 
 
-from branchpoint import gpu
+from mechiviz import gpu
 import fastplotlib as fpl
 import numpy as np
 import pygfx as gfx

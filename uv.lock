@@ -165,59 +165,6 @@ css = [
 ]
 
 [[package]]
-name = "branchpoint"
-version = "0.0.1"
-source = { editable = "." }
-dependencies = [
-    { name = "fastplotlib", extra = ["imgui", "notebook"] },
-    { name = "glfw" },
-    { name = "numpy" },
-    { name = "tinygrad" },
-    { name = "wgpu" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "cuda-python" },
-    { name = "cupy-cuda12x" },
-    { name = "jupyterlab" },
-    { name = "pytest" },
-    { name = "ruff" },
-    { name = "torch" },
-]
-lint = [
-    { name = "ruff" },
-]
-notebook = [
-    { name = "jupyterlab" },
-]
-tests = [
-    { name = "pytest" },
-]
-torch = [
-    { name = "cuda-python" },
-    { name = "cupy-cuda12x" },
-    { name = "torch" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "branchpoint", extras = ["lint", "tests", "torch", "notebook"], marker = "extra == 'dev'" },
-    { name = "cuda-python", marker = "extra == 'torch'" },
-    { name = "cupy-cuda12x", marker = "extra == 'torch'" },
-    { name = "fastplotlib", extras = ["notebook", "imgui"], git = "https://github.com/fastplotlib/fastplotlib?branch=ndwidget" },
-    { name = "glfw" },
-    { name = "jupyterlab", marker = "extra == 'notebook'" },
-    { name = "numpy" },
-    { name = "pytest", marker = "extra == 'tests'" },
-    { name = "ruff", marker = "extra == 'lint'" },
-    { name = "tinygrad" },
-    { name = "torch", marker = "extra == 'torch'" },
-    { name = "wgpu", specifier = ">=0.32,<0.33" },
-]
-provides-extras = ["torch", "lint", "tests", "notebook", "dev"]
-
-[[package]]
 name = "certifi"
 version = "2026.7.22"
 source = { registry = "https://pypi.org/simple" }
@@ -1201,6 +1148,59 @@ sdist = { url = "https://files.pythonhosted.org/packages/bd/c0/9f7c9a46090390368
 wheels = [
     { url = "https://files.pythonhosted.org/packages/41/09/5b161152e2d90f7b87f781c2e1267494aef9c32498df793f73ad0a0a494a/matplotlib_inline-0.2.2-py3-none-any.whl", hash = "sha256:3c821cf1c209f59fb2d2d64abbf5b23b67bcb2210d663f9918dd851c6da1fcf6", size = 9534, upload-time = "2026-05-08T17:33:32.055Z" },
 ]
+
+[[package]]
+name = "mechiviz"
+version = "0.0.1"
+source = { editable = "." }
+dependencies = [
+    { name = "fastplotlib", extra = ["imgui", "notebook"] },
+    { name = "glfw" },
+    { name = "numpy" },
+    { name = "tinygrad" },
+    { name = "wgpu" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "cuda-python" },
+    { name = "cupy-cuda12x" },
+    { name = "jupyterlab" },
+    { name = "pytest" },
+    { name = "ruff" },
+    { name = "torch" },
+]
+lint = [
+    { name = "ruff" },
+]
+notebook = [
+    { name = "jupyterlab" },
+]
+tests = [
+    { name = "pytest" },
+]
+torch = [
+    { name = "cuda-python" },
+    { name = "cupy-cuda12x" },
+    { name = "torch" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cuda-python", marker = "extra == 'torch'" },
+    { name = "cupy-cuda12x", marker = "extra == 'torch'" },
+    { name = "fastplotlib", extras = ["notebook", "imgui"], git = "https://github.com/fastplotlib/fastplotlib?branch=ndwidget" },
+    { name = "glfw" },
+    { name = "jupyterlab", marker = "extra == 'notebook'" },
+    { name = "mechiviz", extras = ["lint", "tests", "torch", "notebook"], marker = "extra == 'dev'" },
+    { name = "numpy" },
+    { name = "pytest", marker = "extra == 'tests'" },
+    { name = "ruff", marker = "extra == 'lint'" },
+    { name = "tinygrad" },
+    { name = "torch", marker = "extra == 'torch'" },
+    { name = "wgpu", specifier = ">=0.32,<0.33" },
+]
+provides-extras = ["torch", "lint", "tests", "notebook", "dev"]
 
 [[package]]
 name = "mistune"
