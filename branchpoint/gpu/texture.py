@@ -107,7 +107,6 @@ class _TensorTextureBase:
 
         self._gfx_texture = tex
         self._wgpu_texture = None
-        self.usage = tex.usage
 
         raw = self._resolve()
         w, h = raw.size[0], raw.size[1]
