@@ -1,6 +1,6 @@
 """Torch version of the noise demo: torch -> shared wgpu buffer -> texture -> pygfx."""
 
-import mechiviz as bp  # noqa: F401
+import mechiviz as mv
 import pygfx as gfx
 import torch
 from rendercanvas.auto import RenderCanvas, loop
@@ -34,7 +34,7 @@ model = NoiseModel()
 scene = gfx.Scene()
 scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
 
-tex = bp.gpu.TorchTensorTexture(shape=model.state.shape, device=device)
+tex = mv.TorchTensorTexture(shape=model.state.shape, device=device)
 
 
 scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))

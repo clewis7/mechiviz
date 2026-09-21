@@ -29,7 +29,6 @@ dependencies = [
 torch = [
     "torch",
     "cuda-python",
-    "cupy-cuda12x",
 ]
 lint = ["ruff"]
 tests = ["pytest"]

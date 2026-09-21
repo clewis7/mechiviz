@@ -1,4 +1,4 @@
-import mechiviz as bp  # noqa: F401
+import mechiviz as mechi
 import pygfx as gfx
 import torch
 from rendercanvas.auto import RenderCanvas, loop
@@ -33,7 +33,7 @@ model = NoiseModel()
 scene = gfx.Scene()
 scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
 
-tex = bp.gpu.TorchTensorTexture(shape=model.state.shape, device=device)
+tex = mechi.TorchTensorTexture(shape=model.state.shape, device=device)
 print(
     f"source {tuple(model.state.shape)} -> texture format {tex.format} "
     f"({tex.n_channels} channels stored)"

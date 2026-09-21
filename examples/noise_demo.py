@@ -1,8 +1,8 @@
+import mechiviz as mv
+
 import pygfx as gfx
 from rendercanvas.auto import RenderCanvas, loop
 from tinygrad import Tensor
-
-from mechiviz import gpu
 
 SIZE = 64  # 64 f32 per row = 256 bytes -> already row-aligned, no padding
 SCALE = 7.0  # 64 * 7 = 448 px on screen
@@ -10,8 +10,8 @@ SCALE = 7.0  # 64 * 7 = 448 px on screen
 canvas = RenderCanvas(size=(560, 620), title="simple demo")
 renderer = gfx.renderers.WgpuRenderer(canvas)
 
-dev = gpu.install()
-print(f"installed shared device")
+dev = mv.install()
+print("installed shared device")
 
 
 class NoiseModel:
@@ -34,7 +34,7 @@ scene = gfx.Scene()
 scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
 
 # create a texture
-tex = gpu.TinygradTensorTexture(shape=model.state.shape)
+tex = mv.TinygradTensorTexture(shape=model.state.shape)
 
 # render texture as image in the scene
 scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))

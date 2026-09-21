@@ -1,13 +1,19 @@
-from mechiviz import _native
+import os
+from pathlib import Path
 
-from .gpu import install, TorchTensorTexture, TinygradTensorTexture
+# until changes are integrated upstream, use vendored .so for wgpu-native
+_SO = Path(__file__).parent / "_native_lib" / "libwgpu_native.so"
+os.environ.setdefault("WGPU_LIB_PATH", str(_SO))
+
+from mechiviz import _native
+from .texture import TorchTensorTexture, TinygradTensorTexture
+from .device import install
 
 __version__ = "0.0.1"
 
-
 __all__ = [
+    "TinygradTensorTexture",
+    "TorchTensorTexture",
     "__version__",
     "install",
-    "TorchTensorTexture",
-    "TinygradTensorTexture",
 ]

@@ -9,8 +9,8 @@ from tinygrad.helpers import DEV
 from tinygrad import Tensor
 from tinygrad.dtype import dtypes
 
-from mechiviz.gpu.transfer import buffer_handle
-from mechiviz.gpu import device as D
+from mechiviz.transfer import buffer_handle
+from mechiviz import device as D
 from .utils import MockGPUDevice, MockGPUBuffer
 
 NAME = "TESTGPU"
@@ -19,7 +19,6 @@ NAME = "TESTGPU"
 @pytest.fixture
 def clean_tinygrad():
     """Snapshot and restore every global install() touches."""
-
     saved_getter = Device._Device__get_canonicalized_item
     saved_opened = set(Device._opened_devices)
     saved_dev_value = DEV.value
@@ -212,7 +211,8 @@ def test_real_device_is_pygfx_device(clean_tinygrad):
 @real_gpu
 def test_real_tensor_math_and_buffer_identity(clean_tinygrad):
     """End to end: a tensor computed on the shared device, whose buffer is a
-    wgpu object created by pygfx's device."""
+    wgpu object created by pygfx's device.
+    """
     shared = D.install(name="WEBGPU")
     t = (Tensor(np.arange(16, dtype=np.float32)) * 2).realize()
 

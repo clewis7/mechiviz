@@ -1,7 +1,7 @@
 import math
 
 
-from mechiviz import gpu
+import mechiviz as mv
 import fastplotlib as fpl
 import numpy as np
 import pygfx as gfx
@@ -29,7 +29,7 @@ figure.canvas.set_title("Synthetic Induction Task")
 figure[0, 0].axes.visible = False
 
 # install shared device
-dev = gpu.install()
+dev = mv.install()
 
 # create data
 rng = np.random.default_rng(0)
@@ -56,7 +56,8 @@ opt = nn.optim.Adam(model.parameters(), lr=LR)
 
 def head_mask() -> Tensor:
     """0/1 per head. A mask multiply rather than a Python branch, so ablation
-    stays inside the graph and gradients to a dead head go to zero."""
+    stays inside the graph and gradients to a dead head go to zero.
+    """
     return Tensor([0.0 if a else 1.0 for a in ABLATE]).realize()
 
 
@@ -126,7 +127,7 @@ for h in range(N_HEADS):
     # brightness stays comparable across frames. Per-frame min/max would make
     # a faint stripe and a sharp one look identical, hiding the thing we came
     # to watch.
-    t = gpu.TinygradTensorTexture(shape=(TILE, TILE))
+    t = mv.TinygradTensorTexture(shape=(TILE, TILE))
     scene.add(t.as_image(clim=(0.0, 1.0), position=(x, HEAD_Y, 0), scale=HSCALE))
     head_tex.append(t)
     make_label(
@@ -151,7 +152,7 @@ make_label(
 # chance level, so a fully-untrained strip reads as full brightness.
 STRIP_H = 26
 STRIP_Y = HEAD_Y - 74
-strip_tex = gpu.TinygradTensorTexture(shape=(1, HALF))
+strip_tex = mv.TinygradTensorTexture(shape=(1, HALF))
 scene.add(
     strip_tex.as_image(
         clim=(0.0, 4.16),
@@ -227,7 +228,8 @@ stripe_geoms = [make_line(c, 1.6) for c in HEAD_COLORS]
 
 def update_line(geom, ys, lo, hi):
     """Map index -> x and value -> y into the plot rect. Decimates past MAX_PTS
-    so the whole run stays visible rather than scrolling off."""
+    so the whole run stays visible rather than scrolling off.
+    """
     if len(ys) > MAX_PTS:
         idx = np.linspace(0, len(ys) - 1, MAX_PTS).astype(int)
         ys_a = np.asarray(ys, np.float32)[idx]

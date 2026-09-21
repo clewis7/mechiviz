@@ -13,7 +13,6 @@ from pygfx.renderers.wgpu import get_shared
 
 # try importing needed wgpu enums
 try:
-    from wgpu import BufferBindingType as _BBT
     from wgpu import BufferUsage as _BU
     from wgpu import MapMode as _MM
     from wgpu import ShaderStage as _SS
