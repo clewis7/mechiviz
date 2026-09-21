@@ -21,19 +21,17 @@ dependencies = [
     "numpy",
     "wgpu>=0.32,<0.33",
     "tinygrad",
-    "fastplotlib[notebook,imgui]",
+    "fastplotlib[imgui] @ git+https://github.com/fastplotlib/fastplotlib.git@main",
     "glfw",
-]
-
-[project.optional-dependencies]
-torch = [
     "torch",
     "cuda-python",
 ]
+
+[project.optional-dependencies]
 lint = ["ruff"]
 tests = ["pytest"]
 notebook = ["jupyterlab"]
-dev = ["mechiviz[lint, tests, torch, notebook]"]
+dev = ["mechiviz[lint, tests, notebook]"]
 
 [project.urls]
 Homepage = "https://github.com/clewis7/mechiviz"
@@ -46,8 +44,6 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 # ===== Tooling
-[tool.uv.sources]
-fastplotlib = { git = "https://github.com/fastplotlib/fastplotlib", branch = "ndwidget" }
 
 [tool.ruff]
 line-length = 88
