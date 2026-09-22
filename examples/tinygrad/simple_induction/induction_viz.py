@@ -10,7 +10,7 @@ from imgui_bundle import imgui
 from tinygrad import Tensor, nn
 
 
-from induction_model import Transformer
+from model import Transformer
 
 TILE = 64  # = seq len; 64 float32 = 256 bytes/row, so no row padding is needed
 VOCAB, SEQ, HALF = 64, 64, 32

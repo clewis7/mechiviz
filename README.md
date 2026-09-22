@@ -17,7 +17,7 @@ cd mechiviz
 ```
 2. Install deps using [uv](https://docs.astral.sh/uv/)
 ```bash
-uv sync --extra dev 
+uv sync --all-extras 
 ```
 
 ## For developers
@@ -30,5 +30,4 @@ uv lock --upgrade      # to update deps when necessary
 uv run ruff format     # auto-format
 uv run ruff check      # lint
 uv run pytest tests    # run unit tests
-
 ```

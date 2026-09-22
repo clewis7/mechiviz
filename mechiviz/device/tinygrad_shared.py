@@ -1,4 +1,8 @@
-"""Make tinygrad and renderer use the same shared device."""
+"""
+Make tinygrad and renderer use the same shared device.
+
+Adapted from work done by Kushal Kolar.
+"""
 
 import functools
 import struct

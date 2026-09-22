@@ -5,8 +5,7 @@ from pathlib import Path
 _SO = Path(__file__).parent / "_native_lib" / "libwgpu_native.so"
 os.environ.setdefault("WGPU_LIB_PATH", str(_SO))
 
-from mechiviz import _native
-from .texture import TorchTensorTexture, TinygradTensorTexture
+from .shared import TorchTensorTexture, TinygradTensorTexture
 from .device import install
 
 __version__ = "0.0.1"

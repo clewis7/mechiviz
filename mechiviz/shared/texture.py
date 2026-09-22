@@ -5,9 +5,9 @@ import pygfx as gfx
 from pygfx.renderers.wgpu.engine.update import ensure_wgpu_object
 from tinygrad import Tensor
 
-from .transfer import padded_row_texels, copy_tensor_to_texture, bytes_per_texel
-from .device import DEFAULT_NAME, SharedWebGpuDevice, installed
-from .torch_shared import SharedTensorBuffer
+from utils.transfer import padded_row_texels, copy_tensor_to_texture, bytes_per_texel
+from device.tinygrad_shared import DEFAULT_NAME, SharedWebGpuDevice, installed
+from device.torch_shared import SharedTensorBuffer
 
 
 DEFAULT_USAGE = wgpu.TextureUsage.COPY_DST | wgpu.TextureUsage.TEXTURE_BINDING
