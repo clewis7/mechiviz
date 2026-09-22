@@ -1,17 +1,18 @@
 import mechiviz as mv
 
-import pygfx as gfx
-from rendercanvas.auto import RenderCanvas, loop
+import fastplotlib as fpl
 from tinygrad import Tensor
+import wgpu
 
 SIZE = 64  # 64 f32 per row = 256 bytes -> already row-aligned, no padding
-SCALE = 7.0  # 64 * 7 = 448 px on screen
-
-canvas = RenderCanvas(size=(560, 620), title="simple demo")
-renderer = gfx.renderers.WgpuRenderer(canvas)
 
 dev = mv.install()
 print("installed shared device")
+
+figure = fpl.Figure(size=(600, 600))
+figure.canvas.set_title("Noise Demo")
+figure[0, 0].axes.visible = False
+figure[0, 0].tooltip.enabled = False
 
 
 class NoiseModel:
@@ -29,31 +30,33 @@ class NoiseModel:
 
 model = NoiseModel()
 
-# ---------------------------------------------------------------- 3. scene
-scene = gfx.Scene()
-scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
+# ------------ plotting
+
+image_graphic = figure[0, 0].add_image(
+    data=model.state.cpu().numpy(),
+    cmap="gray",
+    vmin=0,
+    vmax=1,
+    texture_usage=wgpu.TextureUsage.TEXTURE_BINDING | wgpu.TextureUsage.COPY_DST,
+)
 
 # create a texture
 tex = mv.TinygradTensorTexture(shape=model.state.shape)
+# link the image_graphic texture to the shared texture
+tex.texture = image_graphic.data.buffer[0, 0]
 
-# render texture as image in the scene
-scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))
 
-label = gfx.Text(
+label = figure[0, 0].add_text(
     text="random noise, tinygrad -> wgpu",
     font_size=15,
-    screen_space=False,
     anchor="bottom-center",
-    material=gfx.TextMaterial(color="#8fa6b8"),
+    offset=(int(SIZE / 2), SIZE + 5, 0),
 )
-label.local.position = (280, 50, 1)
-scene.add(label)
 
-camera = gfx.OrthographicCamera(560, 620)
-camera.local.position = (280, 310, 0)
+figure.show()
 
 
-# ---------------------------------------------------------------- 4. loop
+# ------------- update
 def animate():
     if model.step > 300:
         return
@@ -62,11 +65,9 @@ def animate():
     tex.update(model.state)
     if model.step % 60 == 0:
         print(f"step {model.step}")
-    renderer.render(scene, camera)
-    canvas.request_draw()
 
 
-canvas.request_draw(animate)
+figure[0, 0].add_animations(animate)
 
 if __name__ == "__main__":
-    loop.run()
+    fpl.loop.run()
