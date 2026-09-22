@@ -11,7 +11,7 @@ from typing import Any
 from tinygrad.device import Allocator, BufferSpec, Compiled
 from tinygrad.renderer.wgsl import WGSLRenderer
 from tinygrad.helpers import DEV
-from tinygrad.device import Device
+from tinygrad.device import Device, TinyELF
 
 from pygfx.renderers.wgpu import get_shared
 
@@ -56,14 +56,14 @@ class SharedWebGPUProgram:
     """
 
     def __init__(
-        self, dev: "SharedWebGpuDevice", name: str, lib: bytes, *args, **kwargs
+        self, dev: "SharedWebGpuDevice", name: str, obj: TinyELF, *args, **kwargs
     ):
         # Newer tinygrad versions pass extra metadata (runtimevars=, prg=, ...)
         # to the program constructor. The WGSL dispatch path needs none of it,
         # accept and ignore anything past dev/name/lib
         self.dev = dev
-        self.name = name
-        self.src = lib.decode()
+        self.name = obj.name
+        self.src = obj.lib.decode()
         self.module = dev.wdev.create_shader_module(code=self.src)
 
     def _uniform(self, val: int | float):

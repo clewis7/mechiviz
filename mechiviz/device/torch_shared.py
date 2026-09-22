@@ -6,7 +6,7 @@ import types
 import torch
 from cuda.bindings import driver as cu
 
-from utils import _native
+from ..utils import _native
 
 
 def _check(result):

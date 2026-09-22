@@ -1,18 +1,11 @@
 """Torch version of the noise demo: torch -> shared wgpu buffer -> texture -> pygfx."""
 
 import mechiviz as mv
-import pygfx as gfx
+import fastplotlib as fpl
+import wgpu
 import torch
-from rendercanvas.auto import RenderCanvas, loop
 
 SIZE = 64  # 64 f32 per row = 256 bytes -> already row-aligned, no padding
-SCALE = 7.0
-
-canvas = RenderCanvas(size=(560, 620), title="torch shared-memory demo")
-renderer = gfx.renderers.WgpuRenderer(canvas)
-
-# pygfx's shared wgpu device -- the one all rendering uses
-device = gfx.renderers.wgpu.get_shared().device
 
 
 class NoiseModel:
@@ -30,43 +23,49 @@ class NoiseModel:
 
 model = NoiseModel()
 
-# ---------------------------------------------------------------- scene
-scene = gfx.Scene()
-scene.add(gfx.Background(None, gfx.BackgroundMaterial("#141414")))
+# ------------ plotting
 
-tex = mv.TorchTensorTexture(shape=model.state.shape, device=device)
+figure = fpl.Figure(size=(600, 600))
+figure.canvas.set_title("Noise Demo")
+figure[0, 0].axes.visible = False
+figure[0, 0].tooltip.enabled = False
 
-
-scene.add(tex.as_image(position=(56, 90, 0), scale=SCALE))
-# -------------------------------------------------------------------------
-
-label = gfx.Text(
-    text="random noise, torch -> shared wgpu memory",
-    font_size=15,
-    screen_space=False,
-    anchor="bottom-center",
-    material=gfx.TextMaterial(color="#8fa6b8"),
+image_graphic = figure[0, 0].add_image(
+    data=model.state.cpu().numpy(),
+    cmap="gray",
+    vmin=0,
+    vmax=1,
+    texture_usage=wgpu.TextureUsage.TEXTURE_BINDING | wgpu.TextureUsage.COPY_DST,
 )
-label.local.position = (280, 50, 1)
-scene.add(label)
 
-camera = gfx.OrthographicCamera(560, 620)
-camera.local.position = (280, 310, 0)
+# create a texture
+tex = mv.TorchTensorTexture(shape=model.state.shape)
+# link the image_graphic texture to the shared texture
+tex.texture = image_graphic.data.buffer[0, 0]
 
 
-# ---------------------------------------------------------------- loop
+label = figure[0, 0].add_text(
+    text="random noise, pytorch -> wgpu",
+    font_size=15,
+    anchor="bottom-center",
+    offset=(int(SIZE / 2), SIZE + 5, 0),
+)
+
+figure.show()
+
+
+# ------------- update
 def animate():
     if model.step > 300:
         return
+
     model.train_step()
-    tex.update(model.state)  # one D2D copy + one buffer->texture blit
+    tex.update(model.state)
     if model.step % 60 == 0:
         print(f"step {model.step}")
-    renderer.render(scene, camera)
-    canvas.request_draw()
 
 
-canvas.request_draw(animate)
+figure[0, 0].add_animations(animate)
 
 if __name__ == "__main__":
-    loop.run()
+    fpl.loop.run()
