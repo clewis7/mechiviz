@@ -17,7 +17,7 @@ DEFAULT_USAGE = (
 _ffi = cffi.FFI()
 _ffi.include(wgpu_ffi)
 _ffi.cdef(
-    "WGPUBuffer wgpuDeviceCreateExportableBuffer(WGPUDevice device, "
+    "WGPUBuffer wgpuDeviceCreateExportableVulkanBuffer(WGPUDevice device, "
     "WGPUBufferDescriptor const * descriptor, int * fd, uint64_t * allocationSize);"
 )
 _lib = _ffi.dlopen(wn.lib_path)
@@ -32,9 +32,9 @@ class ExportableBuffer(NamedTuple):
 def create_exportable_buffer(
     device, nbytes: int, usage=DEFAULT_USAGE, label: str = "mechiviz-shared"
 ) -> ExportableBuffer:
-    if getattr(_lib, "wgpuDeviceCreateExportableBuffer", None) is None:
+    if getattr(_lib, "wgpuDeviceCreateExportableVulkanBuffer", None) is None:
         raise RuntimeError(
-            f"wgpu-native at {wn.lib_path} lacks wgpuDeviceCreateExportableBuffer; "
+            f"wgpu-native at {wn.lib_path} lacks wgpuDeviceCreateExportableVulkanBuffer; "
             "import mechiviz before wgpu/pygfx/fastplotlib"
         )
 
@@ -51,7 +51,7 @@ def create_exportable_buffer(
     fd = _ffi.new("int *", -1)
     alloc_size = _ffi.new("uint64_t *")
 
-    raw = getattr(_lib, "wgpuDeviceCreateExportableBuffer", None)(
+    raw = getattr(_lib, "wgpuDeviceCreateExportableVulkanBuffer", None)(
         device._internal, desc, fd, alloc_size
     )
     if raw == _ffi.NULL:
