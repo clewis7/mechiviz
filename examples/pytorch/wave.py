@@ -69,7 +69,7 @@ def animate():
 
     model.train_step()
     for i, buf in enumerate(bufs):
-        buf.update(model.positions[i], synchronize=(i == 0))
+        buf.update(model.positions[i], synchronize=True)
     if model.step % 60 == 0:
         print(f"step {model.step}")
 
